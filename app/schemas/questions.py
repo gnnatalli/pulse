@@ -2,7 +2,32 @@ from typing import Annotated
 from pydantic import BaseModel, Field, ConfigDict, StringConstraints, TypeAdapter, computed_field
 
 
-QuestionText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=5, max_length=100)]
+QuestionText = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=5,
+        max_length=100)
+]
+
+CategoryName = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=1,
+        max_length=100)
+]
+
+
+class CategoryBase(BaseModel):
+    name: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True,
+            min_length=1,
+            max_length=100
+        )
+    ]
 
 
 class QuestionBase(BaseModel):
@@ -10,17 +35,25 @@ class QuestionBase(BaseModel):
 
 
 class QuestionCreate(QuestionBase):
-    pass
+    category_id: int
 
 
 class QuestionUpdate(QuestionBase):
     text: QuestionText | None = None
+    category_id: int | None = None
 
 
+class CategoryRead(CategoryBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+
+    
 class QuestionRead(QuestionBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    category: CategoryRead
 
 
 QuestionsList = TypeAdapter(list[QuestionRead])
